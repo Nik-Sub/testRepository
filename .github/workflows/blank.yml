@@ -41,18 +41,14 @@ jobs:
     needs: [lint]  # Add other job names if needed
 
     steps:
-      - name: Install github-script
-        run: npm install @actions/github-script
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
 
-      - name: Close Pull Request on Failure
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const response = await github.pulls.update({
-              owner: Nik-Sub,
-              repo: testRepository,
-              pull_number: context.payload.pull_request.number,
-              state: 'closed'
-            });
-            console.log(response);
+      - name: Close
+        run: |
+          echo "::error::Lint check failed. Closing the pull request."
+          gh pr close ${{ github.event.pull_request.number }}
