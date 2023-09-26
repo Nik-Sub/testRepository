@@ -34,20 +34,12 @@ jobs:
         run: clang-tidy src/**/*.cpp -- -Iinclude
 
   
-  check_status:
+  close_pull_request:
+    if: failure()
     runs-on: ubuntu-latest
-    needs: [lint]
 
     steps:
-      - name: Check if any job failed
-        run: |
-          if [ ${{ job.status }} != 'completed' ]; then
-            echo "::error::One or more jobs failed. Please fix the issues and try again."
-            exit 1
-          fi
-
-      - name: Refuse Pull Request
-        if: failure()
+      - name: Close Pull Request on Failure
         run: |
           curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                -d '{"state": "closed"}' \
