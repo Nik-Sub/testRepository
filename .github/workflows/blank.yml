@@ -42,7 +42,15 @@ jobs:
 
     steps:
       - name: Close Pull Request on Failure
-        run: |
-          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               -d '{"state": "closed"}' \
-               "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}"
+        
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const response = await github.pulls.update({
+              owner: Nik-Sub,
+              repo: testRepository,
+              pull_number: context.payload.pull_request.number,
+              state: 'closed'
+            });
+            console.log(response);
